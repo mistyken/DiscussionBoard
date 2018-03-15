@@ -12,7 +12,7 @@ defmodule Discuss.CommentsChannel do
     {:ok, %{comments: topic.comments}, assign(socket, :topic, topic)}
   end
 
-  def handle_in(name, %{"content" => content}, socket) do
+  def handle_in(_name, %{"content" => content}, socket) do
     topic = socket.assigns.topic
     user_id = socket.assigns.user_id
 
@@ -22,6 +22,7 @@ defmodule Discuss.CommentsChannel do
 
     case Repo.insert(changeset) do
       {:ok, comment} ->
+        comment = Repo.preload(comment, :user) #preload the comment from the successful insert with the :user 
         broadcast!(socket, "comments:#{socket.assigns.topic.id}:new",
           %{comment: comment}
         )
